@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import pytesseract 
 
-# ścieżka do pliku exe OCR
+# ścieżka do pliku exe OCR, ten cały tesseract musi być zainstalowany wcześniej 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\wilko\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
 class SudokuBoard():
@@ -15,6 +15,7 @@ class SudokuBoard():
         self.cell_images = []
 
     def process_board_image(self):
+        ''' Zwiększa rozdzielczość screena planszy, usuwa niepotrzebne linie w planszy i konwertuje do obrazu binarnego '''
 
         resized_board_img = cv2.resize(self.board_image, (self.BOARD_WIDTH, self.BOARD_HEIGHT)) 
         gray_board_img = cv2.cvtColor(resized_board_img, cv2.COLOR_RGB2GRAY)
@@ -32,6 +33,7 @@ class SudokuBoard():
         self.processed_board_image = binary_board_img
     
     def split_board_image(self):
+        ''' Dzieli plansze na 81 pól tak żeby OCR na każdym był w stanie wykryć cyfrę '''
 
         y_start = 0
         y_end = self.BOARD_HEIGHT // 9
@@ -52,6 +54,8 @@ class SudokuBoard():
             y_end += self.cell_size
     
     def create_board(self):
+        ''' OCR wykrywa cyfry z poszczególnych komórek planszy, w pustych polach wstawione są 0, funkcja zwraca macierz numpy 9x9,'''
+        
         board = []
 
         for image in self.cell_images:
