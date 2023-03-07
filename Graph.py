@@ -6,7 +6,8 @@ import streamlit as st
 class Graph():
     def __init__(self, adjacency_list=None, type=None):
         ''' Tworzy graf wykorzystując podaną listę sąsiedztwa, tworzy wybrany graf sudoku w zależnosci od parametru type '''
-
+        
+        self.is_colored = False
         self.color_list = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray']
         self.node_colors = []
 
@@ -97,9 +98,9 @@ class Graph():
                     self.node_colors[node] = color
                     break
         
+        self.is_colored = True
         self.display_graph_streamlit()
         
-
     def get_adjacency_matrix(self):
         ''' Zwraca macierz sąsiedztwa jako numpy array '''
 
@@ -123,6 +124,8 @@ class Graph():
 
         nx.draw_networkx(self.G, self.pos, with_labels=True, node_color = self.node_colors)
         st.pyplot(plt)
+        if self.is_colored:
+            st.write(f'Liczba chromatyczna grafu:  {len(set(self.node_colors))}')
 
     def display_graph_notebook(self):
         ''' Wyświetla graf w notebooku, chyba bo nie testowałem'''

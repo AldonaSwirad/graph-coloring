@@ -19,7 +19,7 @@ if uploaded_file is not None:
 
     st.sidebar.image(image_array, caption='Uploaded sudoku')
 
-    #st.sidebar.write(board)
+    st.sidebar.write(board)
 
 g = Graph(type='sudoku4x4')
 g.map_colors_from_sudoku_board(board)
