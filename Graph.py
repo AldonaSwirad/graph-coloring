@@ -55,6 +55,7 @@ class Graph():
     def map_colors_from_sudoku_board(self, sudoku_board):
         ''' Wstępnie koloruje wierzchołki grafu na podstawie podanej planszy sudoku '''
         self.node_colors = []
+        # Chujowo napisane ale jakoś działa 
         for row in sudoku_board:
             for node in row:
                 if node == 0:
