@@ -7,6 +7,9 @@ class Graph():
     def __init__(self, adjacency_list=None, type=None):
         ''' Tworzy graf wykorzystując podaną listę sąsiedztwa, tworzy wybrany graf sudoku w zależnosci od parametru type '''
 
+        self.color_list = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray']
+        self.node_colors = []
+
         # Tworzy pusty graf
         if adjacency_list == None and type == None:
             self.adjacency_list = {}
@@ -25,8 +28,8 @@ class Graph():
         elif adjacency_list == None and type == 'sudoku4x4':
             self.adjacency_list = {}
             self.G = nx.sudoku_graph(2)
-            self.pos = dict(zip(list(self.G.nodes()), nx.grid_2d_graph(2 * 2, 2 * 2)))
-            #self.pos = nx.circular_layout(self.G)
+            #self.pos = dict(zip(list(self.G.nodes()), nx.grid_2d_graph(2 * 2, 2 * 2)))
+            self.pos = nx.circular_layout(self.G)
             for node, nodes_dict in self.G.adjacency():
                 self.adjacency_list[node] = list(nodes_dict.keys())
                 
@@ -54,7 +57,7 @@ class Graph():
 
     def map_colors_from_sudoku_board(self, sudoku_board):
         ''' Wstępnie koloruje wierzchołki grafu na podstawie podanej planszy sudoku '''
-        self.node_colors = []
+
         # Chujowo napisane ale jakoś działa 
         for row in sudoku_board:
             for node in row:
@@ -79,10 +82,41 @@ class Graph():
                 elif node == 9:
                     self.node_colors.append('gray')
 
+    def greedy_coloring(self):
+        adjacency_list = self.adjacency_list
+        for node in range(len(adjacency_list)):
+            if self.node_colors[node] != 'whitesmoke':
+                continue
+
+            used_colors = set()
+            for neighbor in adjacency_list[node]:
+                used_colors.add(self.node_colors[neighbor])
+
+            for color in self.color_list:
+                if color not in used_colors:
+                    self.node_colors[node] = color
+                    break
+        
+        self.display_graph_streamlit()
+        
+
     def get_adjacency_matrix(self):
         ''' Zwraca macierz sąsiedztwa jako numpy array '''
 
         return nx.to_numpy_array(self.G)
+
+    def get_node_degrees(self):
+        adjacency_matrix = self.get_adjacency_matrix()
+        degrees = []
+        
+        for i in adjacency_matrix:
+            degree = 0
+            for j in i:
+                degree += j
+
+            degrees.append(degree)
+
+        return degrees
 
     def display_graph_streamlit(self):
         ''' Wyświetla graf w streamlicie '''
