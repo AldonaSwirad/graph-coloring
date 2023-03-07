@@ -11,17 +11,19 @@ if uploaded_file is not None:
     image = Image.open(uploaded_file)
     image_array = np.asarray(image)
 
-    sudoku_board = SudokuBoard(image_array)
+    sudoku_board = SudokuBoard(2, image_array)
     sudoku_board.process_board_image()
     sudoku_board.split_board_image()
 
     board = sudoku_board.create_board()
+    print(board)
 
-    st.sidebar.image(image, caption='Uploaded sudoku')
+    st.sidebar.image(image_array, caption='Uploaded sudoku')
     #st.sidebar.write(board)
 
 g = Graph(type='sudoku4x4')
-g.display_graph()
+g.map_colors_from_sudoku_board(board)
+g.display_graph_streamlit()
 g.display_all_nodes()
 g.display_adjacency_list()
 
