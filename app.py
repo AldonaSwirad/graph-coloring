@@ -17,7 +17,7 @@ if uploaded_file is not None:
 
     board = sudoku_board.create_board()
 
-    st.sidebar.image(image_array, caption='Uploaded sudoku')
+    st.sidebar.image(sudoku_board.processed_board_image, caption='Uploaded sudoku')
 
     st.sidebar.write(board)
 

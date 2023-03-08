@@ -10,7 +10,7 @@ class Graph():
         self.is_colored = False
         self.color_list = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray']
         self.node_colors = []
-
+        
         # Tworzy pusty graf
         if adjacency_list == None and type == None:
             self.adjacency_list = {}
@@ -36,8 +36,8 @@ class Graph():
                 
         else:
             # Tworzy graf wykorzystując podaną listę sąsiedztwa
-            self.G = nx.Graph()
             self.adjacency_list = adjacency_list
+            self.G = nx.from_dict_of_lists(self.adjacency_list)
 
     def add_node(self, node):
         ''' Dodaje wierzchołek do listy sąsiedztwa '''
@@ -100,7 +100,7 @@ class Graph():
         
         self.is_colored = True
         self.display_graph_streamlit()
-        
+    
     def get_adjacency_matrix(self):
         ''' Zwraca macierz sąsiedztwa jako numpy array '''
 

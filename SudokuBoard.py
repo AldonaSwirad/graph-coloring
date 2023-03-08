@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import pytesseract 
 
-
 # ścieżka do pliku exe OCR, ten cały tesseract musi być zainstalowany wcześniej 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\wilko\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
 
@@ -94,5 +93,8 @@ class SudokuBoard():
             board = board.reshape((4,4))
 
         return board
+
+ 
+    
 
         
