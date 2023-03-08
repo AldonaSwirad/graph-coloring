@@ -5,29 +5,32 @@ import numpy as np
 from SudokuBoard import SudokuBoard
 from Graph import Graph
 
+g = Graph() # inicjalizuje graf
 
-uploaded_file = st.sidebar.file_uploader(label='Upload your sudoku board', type=["jpg","jpeg","png"])
-if uploaded_file is not None:
+uploaded_file = st.sidebar.file_uploader(label='Upload your sudoku board', type=["jpg","jpeg","png"]) # odpowiada za przesyłanie planszy sudoku 
+if uploaded_file is not None: # jeżeli plansza została załadowana
     image = Image.open(uploaded_file)
-    image_array = np.asarray(image)
+    image_array = np.asarray(image) 
 
-    sudoku_board = SudokuBoard(2, image_array)
-    sudoku_board.process_board_image()
-    sudoku_board.split_board_image()
+    sudoku_board = SudokuBoard(2, image_array) # inicjalizuje instancję klasy SudokuBoard
+    sudoku_board.process_board_image() # przetwarza obraz aby ułatwić OCR'ce działanie
+    sudoku_board.split_board_image() # dzieli planszę na pojedyńcze komórki
 
-    board = sudoku_board.create_board()
+    board = sudoku_board.create_board() # reprezentuje planszę jako macierz numpy 
+    g.from_sudoku_board(board, 'grid') # tworzy graf na podstawie planszy
 
-    st.sidebar.image(sudoku_board.processed_board_image, caption='Uploaded sudoku')
+    st.sidebar.image(image, caption='Uploaded sudoku') # wyświetla zdjęcie planszy
 
-    st.sidebar.write(board)
+    st.sidebar.write(board) # wyświetla wynik OCR'ki
 
-g = Graph(type='sudoku4x4')
-g.map_colors_from_sudoku_board(board)
-g.display_graph_streamlit()
+else: 
+    g.from_adjacency_list({0:[1,2,4],1:[0,2], 2:[0,1,3],3:[2,4],4:[3,0]}) # tworzy graf na podstawie listy sąsiedztwa, wstępnie wpisywana jest z palca 
 
-test_btn = st.button('Greedy coloring')
+g.display_graph_streamlit() # wyświetla graf
 
-if test_btn:
-    g.greedy_coloring()
+greedy_btn = st.button('Greedy coloring') # przycisk odpowiedzialny za wywołanie funkcji kolorującej graf algorytmem zachłannym
+
+if greedy_btn:
+    g.standard_greedy_coloring()
 
     

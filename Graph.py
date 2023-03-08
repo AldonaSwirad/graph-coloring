@@ -4,46 +4,58 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 class Graph():
-    def __init__(self, adjacency_list=None, type=None):
-        ''' Tworzy graf wykorzystując podaną listę sąsiedztwa, tworzy wybrany graf sudoku w zależnosci od parametru type '''
+    def __init__(self):
+        ''' Tworzy graf '''
+
+        self.G = nx.Graph() # instancja glasy Graph z biblioteki nx
+        self.is_colored = False 
+        self.adjacency_list = {}
+        self.node_colors = [] # lista przechowująca kolory wierzchołków grafu, kolejno dla każdego wierzchołka licząc od 0 
         
-        self.is_colored = False
-        self.color_list = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray']
-        self.node_colors = []
+    def from_sudoku_board(self, sudoku_board, layout):
+        ''' Tworzy graf na podstawie podanej planszy sudoku, sposób wyświetlania grafu zależy od parametru layout '''
         
-        # Tworzy pusty graf
-        if adjacency_list == None and type == None:
-            self.adjacency_list = {}
-            self.G = nx.Graph()
+        # sprawdzamy wielkość sudoku
+        if sudoku_board.shape[0] == 9:
+            n = 3
+        else :
+            n = 2
         
-        # Tworzy graf dużego sudoku
-        elif adjacency_list == None and type == 'sudoku9x9':
-            self.adjacency_list = {}
-            self.G = nx.sudoku_graph(3)
-            self.pos = dict(zip(list(self.G.nodes()), nx.grid_2d_graph(3 * 3, 3 * 3)))
-            #self.pos = nx.circular_layout(self.G)
+        # w zależności od wielkości sudoku tworzymy odpowiedni graf sudoku
+        if n == 3:
+            self.G = nx.sudoku_graph(n)
             for node, nodes_dict in self.G.adjacency():
                 self.adjacency_list[node] = list(nodes_dict.keys())
 
-        # Tworzy graf małego sudoku
-        elif adjacency_list == None and type == 'sudoku4x4':
-            self.adjacency_list = {}
-            self.G = nx.sudoku_graph(2)
-            #self.pos = dict(zip(list(self.G.nodes()), nx.grid_2d_graph(2 * 2, 2 * 2)))
-            self.pos = nx.circular_layout(self.G)
+        elif n == 2:
+            self.G = nx.sudoku_graph(n)
             for node, nodes_dict in self.G.adjacency():
                 self.adjacency_list[node] = list(nodes_dict.keys())
-                
-        else:
-            # Tworzy graf wykorzystując podaną listę sąsiedztwa
-            self.adjacency_list = adjacency_list
-            self.G = nx.from_dict_of_lists(self.adjacency_list)
+
+        # sposób wyświetlania grafu zależny od parametru layout
+        if layout == 'grid':
+            self.pos = dict(zip(list(self.G.nodes()), nx.grid_2d_graph(n * n, n * n)))
+            
+        elif layout == 'circular':
+            self.pos = nx.circular_layout(self.G)
+
+        # wstępnie koloruje graf na podstawie wartości w komórkach planszy sudoku
+        self.map_colors_from_sudoku_board(sudoku_board=sudoku_board)
+
+    def from_adjacency_list(self, adjacency_list):
+        ''' Tworzy graf na podstawie podanej listy sąsiedztwa '''
+
+        self.adjacency_list = adjacency_list
+        self.node_colors = ['whitesmoke'] * len(adjacency_list) # tworzymy listę zależną od ilości wierzchołków, lista przechowuje domyślny kolor whitesmoke dla "niepokolorowanego" wierzchołka 
+        self.G = nx.from_dict_of_lists(self.adjacency_list) 
+        self.pos = nx.spring_layout(self.G) # odpowiada za rozłożenie wierzchołków
 
     def add_node(self, node):
         ''' Dodaje wierzchołek do listy sąsiedztwa '''
-
+        
+        # jeżeli wierzchołek nie znajduje się w liście sąsiedztwa
         if node not in self.adjacency_list.keys():
-            self.adjacency_list[node] = []
+            self.adjacency_list[node] = [] # dodajemmy wierzchołek jako nowy klucz w słowniku, wartością jest pusta lista którą później wypełnimy sąsiadami danego wierzchołka
 
     def add_edge(self, edge):
         ''' Dodaje krawędź do listy sąsiedztwa '''
@@ -59,47 +71,40 @@ class Graph():
     def map_colors_from_sudoku_board(self, sudoku_board):
         ''' Wstępnie koloruje wierzchołki grafu na podstawie podanej planszy sudoku '''
 
-        # Chujowo napisane ale jakoś działa 
+        color_list = ['whitesmoke', 'red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray'] # lista dostępnych kolorów wierzchołków 
+        
+        # przypisujemy wierzchołkowi kolor w zależności od wartości w planszy sudoku, dla wartości 0 kolorem oznaczającym "niepokolorowany" wierzchołek jest whitesmoke
         for row in sudoku_board:
             for node in row:
-                if node == 0:
-                    self.node_colors.append('whitesmoke')
-                elif node == 1:
-                    self.node_colors.append('red')
-                elif node == 2:
-                    self.node_colors.append('green')
-                elif node == 3:
-                    self.node_colors.append('blue')
-                elif node == 4:
-                    self.node_colors.append('yellow')
-                elif node == 5:
-                    self.node_colors.append('orange')
-                elif node == 6:
-                    self.node_colors.append('purple')
-                elif node == 7:
-                    self.node_colors.append('pink')
-                elif node == 8:
-                    self.node_colors.append('brown')
-                elif node == 9:
-                    self.node_colors.append('gray')
+                self.node_colors.append(color_list[node])
 
-    def greedy_coloring(self):
+    def standard_greedy_coloring(self):
+        ''' Koloruje graf wykorzystując podstawową wersję algorytmu zachłannego '''
+
         adjacency_list = self.adjacency_list
+        color_list = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray', 'gold', 'beige', 'cyan'] # lista dostępnych kolorów wierzchołków, jest ich więcej ponieważ
+                                                                                                                                # może okazać się że algorytm zachłanny nie bedzie w stanie 
+                                                                                                                                # pokolorować grafu sudoku 9x9 9 kolorami
+
+        # dla każdego wierzchołka w liście sąsiedztwa                                                                                           
         for node in range(len(adjacency_list)):
-            if self.node_colors[node] != 'whitesmoke':
+            if self.node_colors[node] != 'whitesmoke': # jeżeli wierzchołek ma już nadany kolor to pomiń aktualną iterację 
                 continue
 
-            used_colors = set()
-            for neighbor in adjacency_list[node]:
-                used_colors.add(self.node_colors[neighbor])
+            used_colors = set() # zbiór przechowujący kolory sąsiadów danego wierzchołka, użyłem zbioru ponieważ ignoruje powtarzające się wartości
 
-            for color in self.color_list:
-                if color not in used_colors:
+            # dla każego sąsiada w liście sąsiedztwa
+            for neighbor in adjacency_list[node]:
+                used_colors.add(self.node_colors[neighbor]) # do zbioru sąsiadujących kolorów dodaj kolor sąsiada
+
+            # dla każdego dostępnego koloru z listy kolorów
+            for color in color_list:
+                if color not in used_colors: # jeżeli kolor nie jest wykorzystywany przez sąsiadów danego wierzchołka nadaj mu ten kolor
                     self.node_colors[node] = color
                     break
         
-        self.is_colored = True
-        self.display_graph_streamlit()
+        self.is_colored = True # ustawia flagę odpowiedzialną za wyświetlanie liczby chromatycznej grafu
+        self.display_graph_streamlit() # wyświetla pokolorwany graf
     
     def get_adjacency_matrix(self):
         ''' Zwraca macierz sąsiedztwa jako numpy array '''
@@ -107,6 +112,8 @@ class Graph():
         return nx.to_numpy_array(self.G)
 
     def get_node_degrees(self):
+        ''' Zwraca stopnie wszystkich wierzchołków w grafie '''
+
         adjacency_matrix = self.get_adjacency_matrix()
         degrees = []
         
@@ -122,8 +129,10 @@ class Graph():
     def display_graph_streamlit(self):
         ''' Wyświetla graf w streamlicie '''
 
-        nx.draw_networkx(self.G, self.pos, with_labels=True, node_color = self.node_colors)
+        nx.draw_networkx(self.G, self.pos, with_labels=True, node_color = self.node_colors) # wyświetla graf
         st.pyplot(plt)
+        
+        # Jeżeli jest pokolorwany wyświetla również liczbę chromatyczną grafu
         if self.is_colored:
             st.write(f'Liczba chromatyczna grafu:  {len(set(self.node_colors))}')
 
@@ -134,12 +143,12 @@ class Graph():
         plt.show()
 
     def display_all_nodes(self):
-        ''' Wypisuje wszystkie wierzchołki '''
+        ''' Wypisuje w konsoli wszystkie wierzchołki '''
 
         print(self.adjacency_list.keys())
 
     def display_adjacency_list(self):
-        '''Wypisuje listę sąsiedztwa '''
+        '''Wypisuje w konsoli listę sąsiedztwa '''
 
         for node in self.adjacency_list.keys():
             print(f'{node} : {self.adjacency_list[node]}')
