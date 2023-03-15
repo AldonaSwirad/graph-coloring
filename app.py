@@ -33,7 +33,7 @@ if uploaded_file is not None: # jeżeli plansza została załadowana
         st.sidebar.write(sudoku_board.map_solution_from_colors(g.node_colors))
 
     if backtrack_btn:
-        g.backtracking_coloring(g.node_colors)
+        g.backtracking_coloring()
         st.sidebar.write('Solved sudoku')
         st.sidebar.write(sudoku_board.map_solution_from_colors(g.node_colors))
         
@@ -44,7 +44,7 @@ else:
         g.standard_greedy_coloring()
 
     if backtrack_btn:
-        g.backtracking_coloring(g.node_colors)
+        g.backtracking_coloring()
 
 g.display_graph_streamlit() # wyświetla graf
 
