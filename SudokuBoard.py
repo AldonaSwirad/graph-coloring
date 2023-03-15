@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import pytesseract 
+import pytesseract
 
 # ścieżka do pliku exe OCR, ten cały tesseract musi być zainstalowany wcześniej 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\wilko\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
@@ -21,31 +21,36 @@ class SudokuBoard():
         self.cell_images = []
 
     def process_board_image(self):
-        ''' Zwiększa rozdzielczość screena planszy, usuwa niepotrzebne linie w planszy i konwertuje do obrazu binarnego '''
+            ''' Zwiększa rozdzielczość screena planszy, usuwa niepotrzebne linie w planszy i konwertuje do obrazu binarnego '''
 
-        resized_board_img = cv2.resize(self.board_image, (self.BOARD_WIDTH, self.BOARD_HEIGHT)) 
-        gray_board_img = cv2.cvtColor(resized_board_img, cv2.COLOR_RGB2GRAY)
-        _,binary_board_img = cv2.threshold(gray_board_img, 127,255,cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+            resized_board_img = cv2.resize(self.board_image, (self.BOARD_WIDTH, self.BOARD_HEIGHT)) 
+            gray_board_img = cv2.cvtColor(resized_board_img, cv2.COLOR_RGB2GRAY)
+            _,binary_board_img = cv2.threshold(gray_board_img, 127,255,cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-        if self.n == 3:
-            line_coord_x = self.BOARD_WIDTH // 3
-            line_coord_y = self.BOARD_HEIGHT // 3
+            cv2.line(binary_board_img, (0, 0), (0, self.BOARD_HEIGHT), (255,255,255), 20)
+            cv2.line(binary_board_img, (self.BOARD_WIDTH, 0), (self.BOARD_WIDTH, self.BOARD_HEIGHT), (255,255,255), 20)
+            cv2.line(binary_board_img, (0, self.BOARD_HEIGHT), (self.BOARD_WIDTH, self.BOARD_HEIGHT), (255,255,255), 20)
+            cv2.line(binary_board_img, (0, 0), (self.BOARD_WIDTH, 0), (255,255,255), 20)
 
-            cv2.line(binary_board_img, (0,line_coord_y), (self.BOARD_WIDTH, line_coord_y), (255,255,255), 20)
-            cv2.line(binary_board_img, (0,line_coord_y*2),(self.BOARD_WIDTH, line_coord_y*2),(255,255,255), 20)
+            if self.n == 3:
+                line_coord_x = self.BOARD_WIDTH // 3
+                line_coord_y = self.BOARD_HEIGHT // 3
 
-            cv2.line(binary_board_img, (line_coord_x,0), (line_coord_x, self.BOARD_HEIGHT), (255,255,255), 20)
-            cv2.line(binary_board_img, (line_coord_x*2,0), (line_coord_x*2, self.BOARD_HEIGHT), (255,255,255), 20)
-        
-        elif self.n == 2:
-            line_coord_x = self.BOARD_WIDTH // 2
-            line_coord_y = self.BOARD_HEIGHT // 2
+                cv2.line(binary_board_img, (0,line_coord_y), (self.BOARD_WIDTH, line_coord_y), (255,255,255), 20)
+                cv2.line(binary_board_img, (0,line_coord_y*2),(self.BOARD_WIDTH, line_coord_y*2),(255,255,255), 20)
 
-            cv2.line(binary_board_img, (0,line_coord_y), (self.BOARD_WIDTH, line_coord_y), (255,255,255), 20)
-            cv2.line(binary_board_img, (line_coord_x,0), (line_coord_x, self.BOARD_HEIGHT), (255,255,255), 20)
+                cv2.line(binary_board_img, (line_coord_x,0), (line_coord_x, self.BOARD_HEIGHT), (255,255,255), 20)
+                cv2.line(binary_board_img, (line_coord_x*2,0), (line_coord_x*2, self.BOARD_HEIGHT), (255,255,255), 20)
+            
+            elif self.n == 2:
+                line_coord_x = self.BOARD_WIDTH // 2
+                line_coord_y = self.BOARD_HEIGHT // 2
+
+                cv2.line(binary_board_img, (0,line_coord_y), (self.BOARD_WIDTH, line_coord_y), (255,255,255), 20)
+                cv2.line(binary_board_img, (line_coord_x,0), (line_coord_x, self.BOARD_HEIGHT), (255,255,255), 20)
 
 
-        self.processed_board_image = binary_board_img
+            self.processed_board_image = binary_board_img
     
     def split_board_image(self):
         ''' Dzieli plansze na 81 pól tak żeby OCR na każdym był w stanie wykryć cyfrę '''
@@ -79,6 +84,7 @@ class SudokuBoard():
 
         for image in self.cell_images:
             ocr_result = pytesseract.image_to_string(image, config='--psm 13 --oem 3 -c tessedit_char_whitelist=123456789')
+
             if ocr_result != '':
                 board.append(int(ocr_result))
             else: 
@@ -91,8 +97,26 @@ class SudokuBoard():
 
         elif self.n == 2:
             board = board.reshape((4,4))
-
+        
         return board
+    
+    def map_solution_from_colors(self, node_colors):
+        solved_board = []
+
+        color_dict = {'red' : 1, 'green' : 2, 'blue' : 3, 'yellow' : 4, 'orange' : 5, 'purple' : 6, 'pink' : 7, 'brown' : 8, 'gray' : 9, 'gold' : 10, 'beige' : 11, 'cyan': 12}
+
+        for color in node_colors:
+            solved_board.append(color_dict[color])
+
+        solved_board = np.array(solved_board)
+
+        if len(solved_board) == 81:
+            solved_board = solved_board.reshape((9,9))
+
+        elif len(solved_board) == 16:
+            solved_board = solved_board.reshape((4,4))
+
+        return solved_board
 
  
     

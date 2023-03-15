@@ -104,7 +104,6 @@ class Graph():
                     break
         
         self.is_colored = True # ustawia flagę odpowiedzialną za wyświetlanie liczby chromatycznej grafu
-        self.display_graph_streamlit() # wyświetla pokolorwany graf
     
     def get_adjacency_matrix(self):
         ''' Zwraca macierz sąsiedztwa jako numpy array '''
@@ -137,10 +136,14 @@ class Graph():
             st.write(f'Liczba chromatyczna grafu:  {len(set(self.node_colors))}')
 
     def display_graph_notebook(self):
-        ''' Wyświetla graf w notebooku, chyba bo nie testowałem'''
+        ''' Wyświetla graf w notebooku '''
 
-        nx.draw(self.G, self.pos, with_labels=True)
+        nx.draw(self.G, self.pos, with_labels=True, node_color = self.node_colors)
         plt.show()
+
+        # Jeżeli jest pokolorwany wyświetla również liczbę chromatyczną grafu
+        if self.is_colored:
+            print(f'Liczba chromatyczna grafu:  {len(set(self.node_colors))}')
 
     def display_all_nodes(self):
         ''' Wypisuje w konsoli wszystkie wierzchołki '''
@@ -152,6 +155,50 @@ class Graph():
 
         for node in self.adjacency_list.keys():
             print(f'{node} : {self.adjacency_list[node]}')
+
+    def backtracking_coloring(self):
+        ''' Koloruje graf 9 kolorami wykorzystując backtracking '''
+
+        adjacency_list = self.adjacency_list
+        num_nodes = len(adjacency_list)
+        color_list = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray'] # lista kolorów, które mogą być przypisane do wierzchołków
+        
+        # sprawdza, czy można przypisać kolor do wierzchołka, zwraca true jeżeli żaden z sąsiadów wierzchołka nie ma przypisanego danego koloru
+        def is_valid(node, color):
+            for neighbor in adjacency_list[node]:
+                if self.node_colors[neighbor] == color:
+                    return False
+            return True
+        
+        # rekurencyjnie próbuje przypisać kolory wszystkim wierzchołkom, jeżeli się to uda zwraca true
+        def backtrack(node):
+            if node == num_nodes:
+                return True
+            
+            # jeżeli wierzchołek ma już przypisany kolor, to kolorujemy następny wierzchołek
+            if self.node_colors[node] != 'whitesmoke':
+                return backtrack(node + 1)
+            
+            # jeżeli nie ma przypisanego koloru próbujemy go przypisać z listy dostępnych kolorów
+            for color in color_list:
+                if is_valid(node, color):
+                    self.node_colors[node] = color
+                    
+                    # jeżeli udało się przypisać kolor to kolorujemy następny wierzchołek
+                    if backtrack(node + 1):
+                        return True
+                    
+                    # jeżeli nie udało się przypisać koloru do następnych wierzchołków to cofamy się i próbujemy innych kolorów 
+                    self.node_colors[node] = 'whitesmoke'
+            
+            # jeżeli nie udało się przypisać żadnego koloru do danego wierzchołka to zwracamy false
+            return False
+        
+        # funkcja backtrack zaczyna od pierwszego tj. "zerowego" wierzchołka
+        backtrack(0)
+        self.is_colored = True # ustawia flagę odpowiedzialną za wyświetlanie liczby chromatycznej grafu
+
+        
 
 
 
