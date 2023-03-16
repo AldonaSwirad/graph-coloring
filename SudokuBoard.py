@@ -122,6 +122,7 @@ class SudokuBoard():
         return solved_board
     
     def sudoku_com_cheats(self, solution):
+        ''' Symuluje klawiaturę w celu wpisywania rozwiazania na sudoku.com '''
         for i in range(4):
             print(f'Start in {3 - i}')
             sleep(1)

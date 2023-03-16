@@ -88,16 +88,30 @@ class Graph():
                 self.node_colors[id] = color_list[node]
                 id += 1
 
-    def standard_greedy_coloring(self):
+    def greedy_coloring(self, type='standard'):
         ''' Koloruje graf wykorzystując podstawową wersję algorytmu zachłannego '''
 
         adjacency_list = self.adjacency_list
-        color_list = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray', 'gold', 'beige', 'cyan', '1A39B6', '2FF53E'] # lista dostępnych kolorów wierzchołków, jest ich więcej ponieważ
-                                                                                                                                # może okazać się że algorytm zachłanny nie bedzie w stanie 
-                                                                                                                                # pokolorować grafu sudoku 9x9 9 kolorami
+        # lista dostępnych kolorów wierzchołków, jest ich więcej ponieważ może okazać się że algorytm zachłanny nie bedzie w stanie pokolorować grafu sudoku 9x9 9 kolorami
+        color_list = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray', 'gold', 'beige', 'cyan', '1A39B6', '2FF53E'] 
+                                                                                                                                 
+        node_order = [] # ta lista przechowuje kolejność kolorowania wierzchołków
 
-        # dla każdego wierzchołka w liście sąsiedztwa                                                                                           
-        for node in range(len(adjacency_list)):
+        # standardowe zachłanne kolorowanie grafu tzn. on pierwszego wierzchołka do ostatniego
+        if type == 'standard':
+            node_order = list(range(len(adjacency_list)))
+        
+        # zachłanne kolorowanie grafu w kolejności od wierzchołka o największym stopniu do wierzchołka o najmniejszym stopniu
+        elif type == 'LF':
+            node_degrees = self.get_node_degrees()
+            node_deg_list = list(enumerate(node_degrees))
+            node_deg_list.sort(key=lambda a: a[1], reverse=True)
+
+            for node in node_deg_list:
+                node_order.append(node[0])
+
+        # dla każdego wierzchołka                                                                                        
+        for node in node_order:
             if self.node_colors[node] != 'whitesmoke': # jeżeli wierzchołek ma już nadany kolor to pomiń aktualną iterację 
                 continue
 
@@ -135,7 +149,7 @@ class Graph():
 
         return degrees
 
-    def display_graph_streamlit(self):
+    def display_streamlit(self):
         ''' Wyświetla graf w streamlicie '''
 
         nx.draw_networkx(self.G, self.pos, with_labels=True, node_color = self.node_colors) # wyświetla graf
@@ -145,7 +159,7 @@ class Graph():
         if self.is_colored:
             st.write(f'Liczba chromatyczna grafu:  {len(set(self.node_colors))}')
 
-    def display_graph_notebook(self):
+    def display_notebook(self):
         ''' Wyświetla graf w notebooku '''
 
         nx.draw(self.G, self.pos, with_labels=True, node_color = self.node_colors)
@@ -173,7 +187,7 @@ class Graph():
             self.node_colors[id] = 'whitesmoke'
 
     def backtracking_coloring(self):
-        ''' Koloruje graf 9 kolorami wykorzystując backtracking '''
+        ''' Koloruje graf wykorzystując backtracking '''
 
         adjacency_list = self.adjacency_list
         num_nodes = len(adjacency_list)

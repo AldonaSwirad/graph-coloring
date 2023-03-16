@@ -11,6 +11,8 @@ screen_number = 1
 
 sleep(4)
 
+# robi screenshoty plansz z sudoku.com
+# petle przerywamy klawiszem q
 while True:
     screenshot = screenshoter.grab(screenshot_roi)
     screenshot = np.array(screenshot)
