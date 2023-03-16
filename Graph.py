@@ -14,7 +14,7 @@ class Graph():
         
     def from_sudoku_board(self, sudoku_board, layout):
         ''' Tworzy graf na podstawie podanej planszy sudoku, sposób wyświetlania grafu zależy od parametru layout '''
-        
+
         # sprawdzamy wielkość sudoku
         if sudoku_board.shape[0] == 9:
             n = 3
@@ -57,6 +57,10 @@ class Graph():
         if node not in self.adjacency_list.keys():
             self.adjacency_list[node] = [] # dodajemmy wierzchołek jako nowy klucz w słowniku, wartością jest pusta lista którą później wypełnimy sąsiadami danego wierzchołka
 
+        self.G.add_node(node)
+        self.node_colors.append('whitesmoke')
+        self.pos = nx.spring_layout(self.G) # odpowiada za rozłożenie wierzchołków
+
     def add_edge(self, edge):
         ''' Dodaje krawędź do listy sąsiedztwa '''
 
@@ -68,21 +72,27 @@ class Graph():
             else:
                 self.adjacency_list[x] = [y]
 
+        self.G.add_edge(node1, node2)
+        self.pos = nx.spring_layout(self.G) # odpowiada za rozłożenie wierzchołków
+
     def map_colors_from_sudoku_board(self, sudoku_board):
         ''' Wstępnie koloruje wierzchołki grafu na podstawie podanej planszy sudoku '''
 
+        self.node_colors = ['whitesmoke'] * len(self.adjacency_list)
         color_list = ['whitesmoke', 'red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray'] # lista dostępnych kolorów wierzchołków 
         
+        id = 0
         # przypisujemy wierzchołkowi kolor w zależności od wartości w planszy sudoku, dla wartości 0 kolorem oznaczającym "niepokolorowany" wierzchołek jest whitesmoke
         for row in sudoku_board:
             for node in row:
-                self.node_colors.append(color_list[node])
+                self.node_colors[id] = color_list[node]
+                id += 1
 
     def standard_greedy_coloring(self):
         ''' Koloruje graf wykorzystując podstawową wersję algorytmu zachłannego '''
 
         adjacency_list = self.adjacency_list
-        color_list = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray', 'gold', 'beige', 'cyan'] # lista dostępnych kolorów wierzchołków, jest ich więcej ponieważ
+        color_list = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray', 'gold', 'beige', 'cyan', '1A39B6', '2FF53E'] # lista dostępnych kolorów wierzchołków, jest ich więcej ponieważ
                                                                                                                                 # może okazać się że algorytm zachłanny nie bedzie w stanie 
                                                                                                                                 # pokolorować grafu sudoku 9x9 9 kolorami
 
@@ -155,6 +165,12 @@ class Graph():
 
         for node in self.adjacency_list.keys():
             print(f'{node} : {self.adjacency_list[node]}')
+
+    def reset_node_colors(self):
+        ''' Resetuje kolory grafu '''
+        self.is_colored = False
+        for id, color in enumerate(self.node_colors):
+            self.node_colors[id] = 'whitesmoke'
 
     def backtracking_coloring(self):
         ''' Koloruje graf 9 kolorami wykorzystując backtracking '''

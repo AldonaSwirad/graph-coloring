@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import pytesseract
+import pyautogui as pg
+from time import sleep
 
 # ścieżka do pliku exe OCR, ten cały tesseract musi być zainstalowany wcześniej 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Users\wilko\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
@@ -101,6 +103,7 @@ class SudokuBoard():
         return board
     
     def map_solution_from_colors(self, node_colors):
+        ''' Ustala kolory wierzchołków na podstawie cyfr wpisanych w nierozwiązane sudoku '''
         solved_board = []
 
         color_dict = {'red' : 1, 'green' : 2, 'blue' : 3, 'yellow' : 4, 'orange' : 5, 'purple' : 6, 'pink' : 7, 'brown' : 8, 'gray' : 9, 'gold' : 10, 'beige' : 11, 'cyan': 12}
@@ -117,6 +120,24 @@ class SudokuBoard():
             solved_board = solved_board.reshape((4,4))
 
         return solved_board
+    
+    def sudoku_com_cheats(self, solution):
+        for i in range(4):
+            print(f'Start in {3 - i}')
+            sleep(1)
+
+        for id, row in enumerate(solution):
+            if id % 2 == 0:
+                for cell in row:
+                    pg.press(f'{cell}')
+                    pg.press('right')
+            
+            elif id % 2 == 1:
+                for cell in reversed(row):
+                    pg.press(f'{cell}')
+                    pg.press('left')
+
+            pg.press('down')
 
  
     
