@@ -106,7 +106,7 @@ class SudokuBoard():
         ''' Ustala kolory wierzchołków na podstawie cyfr wpisanych w nierozwiązane sudoku '''
         solved_board = []
 
-        color_dict = {'red' : 1, 'green' : 2, 'blue' : 3, 'yellow' : 4, 'orange' : 5, 'purple' : 6, 'pink' : 7, 'brown' : 8, 'gray' : 9, 'gold' : 10, 'beige' : 11, 'cyan': 12}
+        color_dict = {'red' : 1, 'green' : 2, 'blue' : 3, 'yellow' : 4, 'orange' : 5, 'purple' : 6, 'pink' : 7, 'brown' : 8, 'gray' : 9, 'gold' : 10, 'beige' : 11, 'cyan': 12, 'black' : 13, 'white' : 14}
 
         for color in node_colors:
             solved_board.append(color_dict[color])

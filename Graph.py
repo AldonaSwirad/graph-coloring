@@ -93,7 +93,7 @@ class Graph():
 
         adjacency_list = self.adjacency_list
         # lista dostępnych kolorów wierzchołków, jest ich więcej ponieważ może okazać się że algorytm zachłanny nie bedzie w stanie pokolorować grafu sudoku 9x9 9 kolorami
-        color_list = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray', 'gold', 'beige', 'cyan', '1A39B6', '2FF53E'] 
+        color_list = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray', 'gold', 'beige', 'cyan', 'black', 'white'] 
                                                                                                                                  
         node_order = [] # ta lista przechowuje kolejność kolorowania wierzchołków
 
